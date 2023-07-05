@@ -3,14 +3,14 @@ package com.example.blogplatformapi.controller;
 
 import com.example.blogplatformapi.model.BlogPost;
 import com.example.blogplatformapi.service.BlogPostService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
-@RestController
+@Controller
 @RequestMapping("/posts")
 public class BlogPostController {
 
@@ -21,43 +21,36 @@ public class BlogPostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BlogPost>> getAllBlogPosts() {
+    public String getAllBlogPosts(Model model) {
         List<BlogPost> blogPosts = blogPostService.getAllBlogPosts();
-        return ResponseEntity.ok(blogPosts);
+        model.addAttribute("blogPosts", blogPosts);
+        model.addAttribute("blogPost", new BlogPost());
+        return "blogposts";
     }
 
     @PostMapping
-    public ResponseEntity<BlogPost> createBlogPost(@RequestBody BlogPost blogPost) {
-        BlogPost createdBlogPost = blogPostService.createBlogPost(blogPost);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBlogPost);
+    public String createBlogPost(@ModelAttribute BlogPost blogPost) {
+        blogPostService.createBlogPost(blogPost);
+        return "redirect:/posts";
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BlogPost> getBlogPostById(@PathVariable("id") Long id) {
+    public String getBlogPostById(@PathVariable Long id, Model model) {
         Optional<BlogPost> blogPost = blogPostService.getBlogPostById(id);
-        return blogPost.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        blogPost.ifPresent(post -> model.addAttribute("post", post));
+        return "blogpost";
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BlogPost> updateBlogPost(@PathVariable("id") Long id, @RequestBody BlogPost updatedBlogPost) {
-        Optional<BlogPost> existingBlogPost = blogPostService.getBlogPostById(id);
-        if (existingBlogPost.isPresent()) {
-            updatedBlogPost.setId(id);
-            BlogPost savedBlogPost = blogPostService.updateBlogPost(updatedBlogPost);
-            return ResponseEntity.ok(savedBlogPost);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/{id}/edit")
+    public String editBlogPost(@PathVariable Long id, Model model) {
+        Optional<BlogPost> blogPost = blogPostService.getBlogPostById(id);
+        blogPost.ifPresent(post -> model.addAttribute("blogPost", post));
+        return "blogposts";
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBlogPost(@PathVariable("id") Long id) {
-        Optional<BlogPost> existingBlogPost = blogPostService.getBlogPostById(id);
-        if (existingBlogPost.isPresent()) {
-            blogPostService.deleteBlogPost(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/{id}/delete")
+    public String deleteBlogPost(@PathVariable Long id) {
+        blogPostService.deleteBlogPost(id);
+        return "redirect:/posts";
     }
 }

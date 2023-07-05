@@ -1,10 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Blog Posts</title>
 </head>
 <body>
+
+<h1>Blog Posts</h1>
+
+<!-- Form for creating or updating a blog post -->
+<form th:action="@{/posts}" th:object="${blogPost}" method="post">
+    <input type="hidden" th:field="*{id}" />
+    <label>Title: <input type="text" th:field="*{title}" /></label><br/>
+    <label>Content: <textarea th:field="*{content}"></textarea></label><br/>
+    <label>Author: <input type="text" th:field="*{author}" /></label><br/>
+    <input type="submit" value="Save" />
+</form>
+
+<hr/>
+
+<!-- Display the list of blog posts -->
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Content</th>
+        <th>Author</th>
+        <th>Action</th>
+    </tr>
+    <tr th:each="post : ${blogPosts}">
+        <td th:text="${post.title}"></td>
+        <td th:text="${post.content}"></td>
+        <td th:text="${post.author}"></td>
+        <td>
+            <a th:href="@{/posts/__${post.id}__}">View</a>
+            <a th:href="@{/posts/__${post.id}__/edit}">Edit</a>
+            <a th:href="@{/posts/__${post.id}__/delete}" >Delete</a>
+        </td>
+    </tr>
+</table>
 
 </body>
 </html>

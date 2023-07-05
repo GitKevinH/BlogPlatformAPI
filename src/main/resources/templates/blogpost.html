@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Blog Post</title>
 </head>
 <body>
+
+<h1>Blog Post</h1>
+
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Content</th>
+        <th>Author</th>
+    </tr>
+    <tr>
+        <td th:text="${post.title}"></td>
+        <td th:text="${post.content}"></td>
+        <td th:text="${post.author}"></td>
+    </tr>
+</table>
+
+<a th:href="@{/posts}">Back to All Posts</a>
 
 </body>
 </html>
